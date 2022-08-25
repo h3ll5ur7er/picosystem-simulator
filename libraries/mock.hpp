@@ -1,13 +1,15 @@
 #pragma once 
 
 #include <cstdint>
+#include <queue>
+#include <SDL2/SDL.h>
 
 namespace picosystem {
-#define PIXEL_DOUBLE
+// #define PIXEL_DOUBLE
 #define __isr
 
 
-#define __TOP_OFFSET 10
+#define __TOP_OFFSET 13
 #define __BOTTOM_OFFSET 10
 #define __LEFT_OFFSET 5
 
@@ -30,7 +32,6 @@ namespace picosystem {
 #define __G(x) (((x) & __G_MASK) >> __G_OFFSET)
 #define __B(x) (((x) & __B_MASK) >> __B_OFFSET)
 
-// return (r & 0xf) | ((a & 0xf) << 4) | ((b & 0xf) << 8) | ((g & 0xf) << 12);
 
 
 #define __FG(color) "\x1b[38;2;"<<__R(color)*16<<";"<<__G(color)*16<<";"<<__B(color)*16<<"m"
@@ -41,5 +42,23 @@ namespace picosystem {
 
 void dma_channel_transfer_from_buffer_now(uint32_t channel, const volatile void * buffer, uint32_t size);
 void __isr dma_complete();
+
+struct BeepObject{
+    double freq;
+    int vol;
+    int samplesLeft;
+};
+
+class Beeper{
+private:
+    double v;
+    std::queue<BeepObject> beeps;
+public:
+    Beeper();
+    ~Beeper();
+    void beep(double freq, int volume, int duration);
+    void generateSamples(Sint16 *stream, int length);
+    void wait();
+};
 
 }

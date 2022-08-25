@@ -92,6 +92,6 @@ namespace picosystem {
       _frequency = _start_frequency + (_voice.bend * (_ms / _voice.bend_ms));
     }
     uint32_t sample = audio_sample(_ms++);
-    _play_note(_frequency, sample);
+    _play_note(_frequency, sample, _duration);
   }
 }

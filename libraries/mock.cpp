@@ -24,7 +24,7 @@ void dma_channel_transfer_from_buffer_now(uint32_t channel, const volatile void 
         std::stringstream ss;
         ss << std::string(__LEFT_OFFSET, ' ');
         for (int x = 0; x<width; x++) {
-            uint16_t upper = *(uint16_t*)((uint8_t*)_buffer + (offset = (y*2+1)*stride + x*sizeof(uint16_t)));
+            uint16_t upper = *(uint16_t*)((uint8_t*)_buffer + (offset = (y*2)*stride + x*sizeof(uint16_t)));
             uint16_t lower = *(uint16_t*)((uint8_t*)_buffer + (y*2+1)*stride + x*sizeof(uint16_t));
             ss << __colorize(upper, lower)<< "▄";
         }

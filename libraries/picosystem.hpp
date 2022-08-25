@@ -11,6 +11,7 @@
 // #include "pico/stdlib.h"
 #include "mock.hpp"
 #include "input.hpp"
+#include "timer.hpp"
 
 void init();
 void update(uint32_t tick);
@@ -18,6 +19,7 @@ void draw(uint32_t tick);
 
 namespace picosystem {
 
+  void log(uint8_t slot, const char* fmt, ...);
   extern uint32_t _debug;
 
   typedef uint16_t color_t;
@@ -238,7 +240,7 @@ namespace picosystem {
   void       _camera_offset(int32_t &x, int32_t &y);
   void       _camera_offset(bool enable);
   void       _update_audio();
-  void       _play_note(uint32_t f, uint32_t v);
+  void       _play_note(uint32_t f, uint32_t v, uint32_t d);
 
   // input pins
   enum button {

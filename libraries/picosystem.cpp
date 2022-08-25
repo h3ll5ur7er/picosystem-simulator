@@ -1,7 +1,11 @@
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>
+#include <iostream>
+#include <cstring>
+#include <string>
 
 #include <math.h>
+#include <stdarg.h>
 
 #include "picosystem.hpp"
 
@@ -51,6 +55,27 @@ namespace picosystem {
     uint8_t *_font = (uint8_t *)&_default_font[0][0];
   #endif
 
+  #define LOG_SLOTS 8
+  std::string logSlots[LOG_SLOTS];
+
+  void log(uint8_t slot, const char * fmt, ...) {
+    std::vector<char> buf(256);
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(&buf[0], buf.size(), fmt, args);
+    va_end(args);
+    logSlots[slot] = &buf[0];
+  }
+
+  void printLog() {
+    for (size_t i = 0; i < LOG_SLOTS; i++)
+    {
+        std::cout << __SET_CURSOR(__LEFT_OFFSET+1, i+2) << __RESET_COLOR;
+        std::cout << logSlots[i] + "                                ";
+    }
+    std::cout << __SET_CURSOR(__LEFT_OFFSET+1, LOG_SLOTS+3) << __RESET_COLOR;
+    std::cout << ">>> ";
+  }
 }
 
 using namespace picosystem;
@@ -131,10 +156,10 @@ int main() {
     _io = _gpio_get();
     updateKeys();
     if (pressed(TerminalKey::Escape)) { exit(0); }
-
     // call users update() function
     uint32_t start_update_us = time_us();
     update(tick++);
+    // _update_audio();
     stats.update_us = time_us() - start_update_us;
 
     // if we're currently transferring the the framebuffer to the screen then
@@ -159,6 +184,16 @@ int main() {
     // flip the framebuffer to the screen
     start_flip = time_us();
     _flip();
+    
+    log(0, "fps         : %d", stats.fps);
+    log(1, "tick   [us] : %d", stats.tick_us);
+    log(2, "update [us] : %d", stats.update_us);
+    log(3, "draw   [us] : %d", stats.draw_us);
+    log(4, "flip   [us] : %d", stats.flip_us);
+    log(5, "idle   [%]  : %d", stats.idle);
+    log(6, "");
+    log(7, "");
+    printLog();
 
     tick++;
 
@@ -167,14 +202,14 @@ int main() {
     // calculate fps and round to nearest value (instead of truncating/floor)
     stats.fps = (1000000 - 1) / stats.tick_us + 1;
 
-    if(stats.fps > 40) {
+    // if(stats.fps > 40) {
       // if fps is high enough then we definitely didn't miss vsync
       stats.idle = (wait_us * 100) / stats.tick_us;
-    }else{
+    // }else{
       // if we missed vsync then we overran the frame time and hence had
       // no idle time
-      stats.idle = 0;
-    }
+      // stats.idle = 0;
+    // }
   }
 
 }
